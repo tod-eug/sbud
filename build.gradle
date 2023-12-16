@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.telegram:telegrambots:6.1.0'
     implementation group: 'org.telegram', name: 'telegrambotsextensions', version: '6.1.0'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.27'
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
 }
 
 test {
