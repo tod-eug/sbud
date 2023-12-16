@@ -1,32 +1,29 @@
 package bot.commands;
 
-import bot.BuddyBot;
 import bot.ReplyConstants;
-import dto.Status;
+import controllers.DividendController;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public class AddStockCommand implements IBotCommand {
+public class DividendCalendarCommand implements IBotCommand {
     @Override
     public String getCommandIdentifier() {
-        return "addstock";
+        return "dividendcalendar";
     }
 
     @Override
     public String getDescription() {
-        return "addstock";
+        return "dividendcalendar";
     }
 
     @Override
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
 
-        BuddyBot.state.put(message.getChatId(), Status.ADD_STOCK);
-
         SendMessage sm = new SendMessage();
         sm.setChatId(message.getChatId());
-        sm.setText(ReplyConstants.ADD_STOCK_REPLY);
+        sm.setText(DividendController.getDividendCalendar(message.getFrom(), message.getChatId().toString()));
         MessageProcessor.sendMsg(absSender, sm);
     }
 }

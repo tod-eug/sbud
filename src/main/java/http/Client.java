@@ -8,7 +8,9 @@ import java.io.IOException;
 
 public class Client {
 
-    public static void getDividends() {
+    public static final String apiDatePattern = "yyyy-MM-dd";
+
+    public static String getDividends() {
 //        UrlBuilder urlBuilder = new UrlBuilder();
 
         OkHttpClient client = new OkHttpClient();
@@ -16,8 +18,8 @@ public class Client {
         HttpUrl httpUrl = HttpUrl.parse("https://financialmodelingprep.com/api/v3/stock_dividend_calendar")
                 .newBuilder()
                 .addQueryParameter("apikey", "6eba9ae7fdff78e7038c55bfb79fa247")
-                .addQueryParameter("from", "2023-10-10")
-                .addQueryParameter("to", "2023-11-30")
+                .addQueryParameter("from", "2023-01-01")
+                .addQueryParameter("to", "2023-09-31")
                 .build();
         Request r = new Request.Builder().url(httpUrl).build();
 
@@ -27,6 +29,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+        return response;
     }
 }

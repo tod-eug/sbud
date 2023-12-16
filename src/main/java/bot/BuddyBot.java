@@ -2,8 +2,9 @@ package bot;
 
 import Util.PropertiesProvider;
 import bot.commands.AddStockCommand;
+import bot.commands.DividendCalendarCommand;
 import bot.commands.StartCommand;
-import bot.dto.Status;
+import dto.Status;
 import db.DbPortfolioApi;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,6 +24,7 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         super();
         register(new StartCommand());
         register(new AddStockCommand());
+        register(new DividendCalendarCommand());
     }
 
     @Override
