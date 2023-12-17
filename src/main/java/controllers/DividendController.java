@@ -4,13 +4,14 @@ import Mappers.DividendMapper;
 import bot.MessageProviders.DividendCalendarMP;
 import db.DbPortfolioApi;
 import dto.Dividend;
-import http.Client;
+import http.DividendApi;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +20,23 @@ public class DividendController {
     public static String getDividendCalendar(User user, String chatId) {
         List<String> portfolio = DbPortfolioApi.getPortfolio(user, chatId);
 
+        String divPreviousRaw = DividendApi.getDividends(LocalDate.now().minusMonths(3).toString(), LocalDate.now().toString());
+        List<Dividend> divAllPrevious = parseDividend(divPreviousRaw);
+        List<Dividend> divPrevious = filterPortfolioDivs(divAllPrevious, portfolio);
+
+        String divNextRaw = DividendApi.getDividends(LocalDate.now().toString(), LocalDate.now().plusMonths(3).toString());
+        List<Dividend> divAllNext = parseDividend(divNextRaw);
+        List<Dividend> divNext = filterPortfolioDivs(divAllNext, portfolio);
+
         List<Dividend> dividends = new ArrayList<>();
-        String divRaw = Client.getDividends();
+        dividends.addAll(divPrevious);
+        dividends.addAll(divNext);
+
+        return DividendCalendarMP.getDividendCalendar(dividends);
+    }
+
+    private static List<Dividend> parseDividend(String divRaw) {
+        List<Dividend> dividends = new ArrayList<>();
 
         if (divRaw != null) {
             JSONParser parser = new JSONParser();
@@ -37,16 +53,23 @@ public class DividendController {
                 dividends.add(DividendMapper.mapDividend(jsonO.get("symbol"), jsonO.get("dividend"), jsonO.get("recordDate"), jsonO.get("paymentDate")));
             }
         }
+        return dividends;
+    }
 
-        //Filter common div list to portfolio
+    private static List<Dividend> filterPortfolioDivs(List<Dividend> dividends, List<String> portfolio) {
         List<Dividend> divFiltered = new ArrayList<>();
         for (Dividend d : dividends) {
             if(portfolio.contains(d.getTicker()))
                 divFiltered.add(d);
         }
-
-        return DividendCalendarMP.getDividendCalendar(divFiltered);
+        return divFiltered;
     }
 
+    private static String getFrom() {
+        return LocalDate.now().minusMonths(3).toString();
+    }
 
+    private static String getTo() {
+        return LocalDate.now().plusMonths(3).toString();
+    }
 }

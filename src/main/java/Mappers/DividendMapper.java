@@ -1,7 +1,8 @@
 package Mappers;
 
 import dto.Dividend;
-import http.Client;
+import http.ApiKeyProvider;
+import http.DividendApi;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,7 +12,7 @@ public class DividendMapper {
 
     public static Dividend mapDividend(Object ticker, Object dividend, Object recordDate, Object paymentDate) {
 
-        SimpleDateFormat datePattern = new SimpleDateFormat(Client.apiDatePattern);
+        SimpleDateFormat datePattern = new SimpleDateFormat(ApiKeyProvider.apiDatePattern);
 
         String tickerR;
         Double dividendR;
