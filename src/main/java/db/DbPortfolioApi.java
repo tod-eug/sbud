@@ -56,4 +56,20 @@ public class DbPortfolioApi {
         }
         return result;
     }
+
+    public static void deleteTicker(User user, String chatId, String ticker) {
+
+        String userUuid = DbUsersApi.findUserByTgId(user.getId().toString(), user, chatId);
+
+        String sql = String.format("delete from portfolio where user_id = '%s' and ticker = '%s';", userUuid, ticker);
+
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        try {
+            dbHelper.getPreparedStatement(sql).executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.closeConnections();
+        }
+    }
 }

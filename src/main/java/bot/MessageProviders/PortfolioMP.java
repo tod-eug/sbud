@@ -8,9 +8,9 @@ public class PortfolioMP {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Users portfolio: \n");
-        for (int i = 1; i < portfolio.size(); i++) {
-            sb.append(i).append(". ").append(portfolio.get(i)).append("\n");
+        sb.append("User's portfolio: \n");
+        for (int i = 0; i < portfolio.size(); i++) {
+            sb.append(i + 1).append(". ").append(portfolio.get(i)).append("\n");
         }
         return sb.toString();
     }

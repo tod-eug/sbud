@@ -1,16 +1,18 @@
 package bot;
 
 import Util.PropertiesProvider;
-import bot.commands.AddStockCommand;
-import bot.commands.DividendCalendarCommand;
-import bot.commands.ShowPortfolioCommand;
-import bot.commands.StartCommand;
+import bot.MessageProviders.PortfolioMP;
+import bot.commands.*;
 import dto.Status;
 import db.DbPortfolioApi;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.HashMap;
@@ -27,6 +29,7 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         register(new AddStockCommand());
         register(new DividendCalendarCommand());
         register(new ShowPortfolioCommand());
+        register(new DeleteTickerCommand());
     }
 
     @Override
@@ -46,6 +49,10 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
+
+        if (update.hasCallbackQuery()) {
+            processCallbackQuery(update);
+        }
 
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
@@ -74,6 +81,32 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         super.onUpdatesReceived(updates);
     }
 
+    private void processCallbackQuery(Update update) {
+        Long userId = update.getCallbackQuery().getFrom().getId();
+        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        int messageId = update.getCallbackQuery().getMessage().getMessageId();
+
+        String[] parsedCallback = update.getCallbackQuery().getData().split(SysConstants.DELIMITER);
+
+        switch (parsedCallback[0]) {
+            case SysConstants.DELETE_TICKER_CALLBACK_TYPE:
+                processDeleteTickerCallbackQuery(parsedCallback, userId, chatId, messageId, update.getCallbackQuery().getFrom());
+                break;
+        }
+    }
+
+    private void processDeleteTickerCallbackQuery(String[] parsedCallback, Long userId, Long chatId, int messageId, User user) {
+
+        String ticker = parsedCallback[1];
+        DbPortfolioApi.deleteTicker(user, chatId.toString(), ticker);
+        List<String> portfolio = DbPortfolioApi.getPortfolio(user, chatId.toString());
+
+        String header = "Ticker: " + ticker + " deleted.\n\n";
+        String text = header + PortfolioMP.getShowPortfolioText(portfolio);
+
+        editMessage(chatId, messageId, text, false, null);
+    }
+
 
     private void sendMessage(long chatId, String text) {
         SendMessage sm = new SendMessage();
@@ -81,6 +114,22 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         sm.setText(text);
         try {
             execute(sm);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void editMessage(long chatId, int messageId, String text, boolean htmlParseMode, InlineKeyboardMarkup keyboard) {
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(chatId);
+        editMessageText.setMessageId(messageId);
+        editMessageText.setText(text);
+        if (keyboard != null)
+            editMessageText.setReplyMarkup(keyboard);
+        if (htmlParseMode)
+            editMessageText.setParseMode(ParseMode.HTML);
+        try {
+            execute(editMessageText);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
