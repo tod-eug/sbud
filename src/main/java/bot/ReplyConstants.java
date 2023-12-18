@@ -6,5 +6,5 @@ public interface ReplyConstants {
     String DELETE_TICKER_REPLAY = "Please choose ticker to delete:\n";
 
 
-    String STOCK_ADDED = "Stock has been added";
+    String STOCK_ADDED = "Stock has been added.\n";
 }

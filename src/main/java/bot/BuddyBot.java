@@ -59,7 +59,9 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
             if (state.containsKey(chatId)) {
                 if (state.get(chatId) == Status.ADD_STOCK) {
                     DbPortfolioApi.addStock(update.getMessage().getFrom(), chatId.toString(), update.getMessage().getText());
-                    sendMessage(chatId, ReplyConstants.STOCK_ADDED);
+                    List<String> portfolio = DbPortfolioApi.getPortfolio(update.getMessage().getFrom(), chatId.toString());
+                    String text = ReplyConstants.STOCK_ADDED + "\n" + PortfolioMP.getShowPortfolioText(portfolio);
+                    sendMessage(chatId, text);
                     state.remove(chatId);
                 }
             }
