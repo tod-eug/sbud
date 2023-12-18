@@ -3,6 +3,7 @@ package bot;
 import Util.PropertiesProvider;
 import bot.commands.AddStockCommand;
 import bot.commands.DividendCalendarCommand;
+import bot.commands.ShowPortfolioCommand;
 import bot.commands.StartCommand;
 import dto.Status;
 import db.DbPortfolioApi;
@@ -25,6 +26,7 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         register(new StartCommand());
         register(new AddStockCommand());
         register(new DividendCalendarCommand());
+        register(new ShowPortfolioCommand());
     }
 
     @Override
