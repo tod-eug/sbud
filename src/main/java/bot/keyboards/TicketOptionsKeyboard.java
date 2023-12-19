@@ -11,11 +11,19 @@ import java.util.List;
 
 public class TicketOptionsKeyboard {
 
-    public static final int buttonsInLineDefault = 3;
+    public static final int buttonsInLineDefault = 2;
 
     public static InlineKeyboardMarkup getTicketOptionsKeyboard(List<Ticker> ticketOptions, String callbackType) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        boolean analyse = false;
+        for (Ticker t : ticketOptions) {
+            if (t.getTicker().split("\\.").length > 0) {
+                analyse = true;
+                break;
+            }
+        }
 
         if (ticketOptions != null) {
             if (!ticketOptions.isEmpty()) {
@@ -27,7 +35,10 @@ public class TicketOptionsKeyboard {
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
                     for (Ticker t : l) {
                         InlineKeyboardButton button = new InlineKeyboardButton();
-                        button.setText(t.getPrettyTicker());
+                        if (analyse)
+                            button.setText(getTickerWithExchangeText(t));
+                        else
+                            button.setText(t.getPrettyTicker());
                         button.setCallbackData(callbackType + SysConstants.DELIMITER + t.getTicker());
                         rowInline.add(button);
                     }
@@ -38,5 +49,9 @@ public class TicketOptionsKeyboard {
 
         keyboardMarkup.setKeyboard(rowsInline);
         return keyboardMarkup;
+    }
+
+    private static String getTickerWithExchangeText(Ticker ticker) {
+        return ticker.getPrettyTicker() + " (" + ticker.getExchange() + ")";
     }
 }

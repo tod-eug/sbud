@@ -15,12 +15,14 @@ import java.util.List;
 
 public class TickerApi {
 
+    private static Integer requestTickersByDefault = 10;
+
     public static List<Ticker> getTickers(String ticker) {
 
         OkHttpClient client = new OkHttpClient();
 
         HttpUrl httpUrl = ApiKeyProvider.getUrl("https://financialmodelingprep.com/api/v3/search-ticker")
-                .addQueryParameter("limit", "9")
+                .addQueryParameter("limit", requestTickersByDefault.toString())
                 .addQueryParameter("query", ticker)
                 .build();
         Request r = new Request.Builder().url(httpUrl).build();
