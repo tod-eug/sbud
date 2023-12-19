@@ -1,6 +1,7 @@
 package bot.commands;
 
 import bot.MessageProviders.PortfolioMP;
+import db.AnalyticsApi;
 import db.DbPortfolioApi;
 import dto.Ticker;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
@@ -23,6 +24,8 @@ public class ShowPortfolioCommand implements IBotCommand {
 
     @Override
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
+
+        AnalyticsApi.createEvent(message.getFrom(), message.getChatId().toString(), "showportfolio", "", "");
 
         List<Ticker> portfolio = DbPortfolioApi.getPortfolio(message.getFrom(), message.getChatId().toString());
 

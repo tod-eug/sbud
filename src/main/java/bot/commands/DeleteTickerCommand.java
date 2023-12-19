@@ -3,6 +3,7 @@ package bot.commands;
 import bot.ReplyConstants;
 import bot.SysConstants;
 import bot.keyboards.PortfolioKeyboard;
+import db.AnalyticsApi;
 import db.DbPortfolioApi;
 import dto.Ticker;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
@@ -25,6 +26,8 @@ public class DeleteTickerCommand implements IBotCommand {
 
     @Override
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
+
+        AnalyticsApi.createEvent(message.getFrom(), message.getChatId().toString(), "deleteticker", "", "");
 
         List<Ticker> portfolio = DbPortfolioApi.getPortfolio(message.getFrom(), message.getChatId().toString());
 

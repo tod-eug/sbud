@@ -4,6 +4,7 @@ import Util.PropertiesProvider;
 import bot.MessageProviders.PortfolioMP;
 import bot.commands.*;
 import bot.keyboards.TicketOptionsKeyboard;
+import db.AnalyticsApi;
 import dto.Status;
 import db.DbPortfolioApi;
 import dto.Ticker;
@@ -56,10 +57,12 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
     public void processNonCommandUpdate(Update update) {
 
         if (update.hasCallbackQuery()) {
+            AnalyticsApi.createEvent(update.getCallbackQuery().getFrom(), update.getCallbackQuery().getMessage().getChatId().toString(), "", "", update.getCallbackQuery().getData());
             processCallbackQuery(update);
         }
 
         if (update.hasMessage()) {
+            AnalyticsApi.createEvent(update.getMessage().getFrom(), update.getMessage().getChatId().toString(), "", update.getMessage().getText(), "");
             Long chatId = update.getMessage().getChatId();
             if (state.containsKey(chatId)) {
                 if (state.get(chatId) == Status.ADD_STOCK) {

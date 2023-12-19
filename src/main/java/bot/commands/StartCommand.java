@@ -1,6 +1,7 @@
 package bot.commands;
 
 import bot.ReplyConstants;
+import db.AnalyticsApi;
 import db.DbUsersApi;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,6 +23,7 @@ public class StartCommand implements IBotCommand {
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
 
         String userId = DbUsersApi.findUserByTgId(message.getFrom().getId().toString(), message.getFrom(), message.getChatId().toString());
+        AnalyticsApi.createEvent(message.getFrom(), message.getChatId().toString(), "start", "", "");
 
         SendMessage sm = new SendMessage();
         sm.setChatId(message.getChatId());
