@@ -4,6 +4,7 @@ import Mappers.DividendMapper;
 import bot.MessageProviders.DividendCalendarMP;
 import db.DbPortfolioApi;
 import dto.Dividend;
+import dto.Ticker;
 import http.DividendApi;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -18,7 +19,7 @@ import java.util.List;
 public class DividendController {
 
     public static String getDividendCalendar(User user, String chatId) {
-        List<String> portfolio = DbPortfolioApi.getPortfolio(user, chatId);
+        List<Ticker> portfolio = DbPortfolioApi.getPortfolio(user, chatId);
 
         String divPreviousRaw = DividendApi.getDividends(LocalDate.now().minusMonths(3).toString(), LocalDate.now().toString());
         List<Dividend> divAllPrevious = parseDividend(divPreviousRaw);
@@ -56,10 +57,15 @@ public class DividendController {
         return dividends;
     }
 
-    private static List<Dividend> filterPortfolioDivs(List<Dividend> dividends, List<String> portfolio) {
+    private static List<Dividend> filterPortfolioDivs(List<Dividend> dividends, List<Ticker> portfolio) {
         List<Dividend> divFiltered = new ArrayList<>();
+        List<String> tickersInPortfolio = new ArrayList<>();
+        for (Ticker t : portfolio) {
+            tickersInPortfolio.add(t.getTicker());
+        }
+
         for (Dividend d : dividends) {
-            if(portfolio.contains(d.getTicker()))
+            if(tickersInPortfolio.contains(d.getTicker()))
                 divFiltered.add(d);
         }
         return divFiltered;

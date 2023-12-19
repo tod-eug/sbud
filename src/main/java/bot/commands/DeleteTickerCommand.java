@@ -4,6 +4,7 @@ import bot.ReplyConstants;
 import bot.SysConstants;
 import bot.keyboards.PortfolioKeyboard;
 import db.DbPortfolioApi;
+import dto.Ticker;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -25,7 +26,7 @@ public class DeleteTickerCommand implements IBotCommand {
     @Override
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
 
-        List<String> portfolio = DbPortfolioApi.getPortfolio(message.getFrom(), message.getChatId().toString());
+        List<Ticker> portfolio = DbPortfolioApi.getPortfolio(message.getFrom(), message.getChatId().toString());
 
         SendMessage sm = new SendMessage();
         sm.setChatId(message.getChatId());

@@ -7,4 +7,7 @@ public interface ReplyConstants {
 
 
     String STOCK_ADDED = "Stock has been added.\n";
+    String CHOOSE_TICKER = "Please choose ticker from founded";
+    String NO_TICKERS_FOUNDED = "Sorry I am not able to find any tickets with this request";
+    String ERROR = "Unexpected error occurred";
 }

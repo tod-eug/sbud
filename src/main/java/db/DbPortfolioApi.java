@@ -1,5 +1,6 @@
 package db;
 
+import dto.Ticker;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.sql.ResultSet;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 public class DbPortfolioApi {
 
-    public static String addStock(User user, String chatId, String ticker) {
+    public static String addStock(User user, String chatId, Ticker ticker) {
 
         String userUuid = DbUsersApi.findUserByTgId(user.getId().toString(), user, chatId);
 
@@ -22,8 +23,8 @@ public class DbPortfolioApi {
 
         UUID id = UUID.randomUUID();
 
-        String insertQuery = String.format("insert into portfolio (id, user_id, ticker, create_date) VALUES ('%s', '%s', '%s', '%s');",
-                id, userUuid, ticker, createdDate);
+        String insertQuery = String.format("insert into portfolio (id, user_id, ticker, pretty_ticker, name, currency, exchange, exchange_full_name, create_date) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');",
+                id, userUuid, ticker.getTicker(),ticker.getPrettyTicker(), ticker.getName(), ticker.getCurrency(), ticker.getExchange(), ticker.getExchangeFullName(), createdDate);
 
         DatabaseHelper dbHelper = new DatabaseHelper();
         try {
@@ -36,18 +37,19 @@ public class DbPortfolioApi {
         return id.toString();
     }
 
-    public static List<String> getPortfolio(User user, String chatId) {
+    public static List<Ticker> getPortfolio(User user, String chatId) {
 
         String userUuid = DbUsersApi.findUserByTgId(user.getId().toString(), user, chatId);
 
-        String sql = String.format("select ticker from portfolio where user_id = '%s';", userUuid);
+        String sql = String.format("select * from portfolio where user_id = '%s';", userUuid);
 
         DatabaseHelper dbHelper = new DatabaseHelper();
-        List<String> result = new ArrayList<>();
+        List<Ticker> result = new ArrayList<>();
         try {
             ResultSet st = dbHelper.getPreparedStatement(sql).executeQuery();
             while(st.next()) {
-                result.add(st.getString("ticker"));
+                result.add(new Ticker(st.getString("ticker"), st.getString("pretty_ticker"), st.getString("name"),
+                        st.getString("currency"), st.getString("exchange"), st.getString("exchange_full_name")));
             }
         } catch (SQLException e) {
             e.printStackTrace();

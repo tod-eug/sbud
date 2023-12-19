@@ -3,8 +3,11 @@ package bot;
 import Util.PropertiesProvider;
 import bot.MessageProviders.PortfolioMP;
 import bot.commands.*;
+import bot.keyboards.TicketOptionsKeyboard;
 import dto.Status;
 import db.DbPortfolioApi;
+import dto.Ticker;
+import http.TickerApi;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,6 +25,7 @@ import java.util.Map;
 public class BuddyBot extends TelegramLongPollingCommandBot {
 
     public static Map<Long, Status> state = new HashMap<>();
+    public static Map<Long, List<Ticker>> tickerOptions = new HashMap<>();
 
     public BuddyBot() {
         super();
@@ -58,11 +62,13 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
             Long chatId = update.getMessage().getChatId();
             if (state.containsKey(chatId)) {
                 if (state.get(chatId) == Status.ADD_STOCK) {
-                    DbPortfolioApi.addStock(update.getMessage().getFrom(), chatId.toString(), update.getMessage().getText());
-                    List<String> portfolio = DbPortfolioApi.getPortfolio(update.getMessage().getFrom(), chatId.toString());
-                    String text = ReplyConstants.STOCK_ADDED + "\n" + PortfolioMP.getShowPortfolioText(portfolio);
-                    sendMessage(chatId, text);
-                    state.remove(chatId);
+                    List<Ticker> options = TickerApi.getTickers(update.getMessage().getText());
+                    if (options.size() > 0) {
+                        sendMessage(chatId, ReplyConstants.CHOOSE_TICKER, false, TicketOptionsKeyboard.getTicketOptionsKeyboard(options, SysConstants.CHOOSE_TICKER_CALLBACK_TYPE));
+                        state.remove(chatId);
+                        tickerOptions.put(chatId, options);
+                    } else
+                        sendMessage(chatId, ReplyConstants.NO_TICKERS_FOUNDED, false, null);
                 }
             }
         }
@@ -94,6 +100,9 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
             case SysConstants.DELETE_TICKER_CALLBACK_TYPE:
                 processDeleteTickerCallbackQuery(parsedCallback, userId, chatId, messageId, update.getCallbackQuery().getFrom());
                 break;
+            case SysConstants.CHOOSE_TICKER_CALLBACK_TYPE:
+                processChooseTickerCallbackQuery(parsedCallback, userId, chatId, messageId, update.getCallbackQuery().getFrom());
+                break;
         }
     }
 
@@ -101,7 +110,7 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
 
         String ticker = parsedCallback[1];
         DbPortfolioApi.deleteTicker(user, chatId.toString(), ticker);
-        List<String> portfolio = DbPortfolioApi.getPortfolio(user, chatId.toString());
+        List<Ticker> portfolio = DbPortfolioApi.getPortfolio(user, chatId.toString());
 
         String header = "Ticker: " + ticker + " deleted.\n\n";
         String text = header + PortfolioMP.getShowPortfolioText(portfolio);
@@ -109,11 +118,37 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
         editMessage(chatId, messageId, text, false, null);
     }
 
+    private void processChooseTickerCallbackQuery(String[] parsedCallback, Long userId, Long chatId, int messageId, User user) {
 
-    private void sendMessage(long chatId, String text) {
+        String chosenTicker = parsedCallback[1];
+        if (tickerOptions.containsKey(chatId)) {
+            List<Ticker> options = tickerOptions.get(chatId);
+
+            Ticker ticker = null;
+
+            for (Ticker t : options) {
+                if (t.getTicker().equals(chosenTicker))
+                    ticker = t;
+            }
+
+            DbPortfolioApi.addStock(user, chatId.toString(), ticker);
+
+            List<Ticker> portfolio = DbPortfolioApi.getPortfolio(user, chatId.toString());
+            String text = ReplyConstants.STOCK_ADDED + "\n" + PortfolioMP.getShowPortfolioText(portfolio);
+            editMessage(chatId, messageId, text, false, null);
+        } else
+            editMessage(chatId, messageId, ReplyConstants.ERROR, false, null);
+    }
+
+
+    private void sendMessage(long chatId, String text, boolean htmlParseMode, InlineKeyboardMarkup keyboard) {
         SendMessage sm = new SendMessage();
         sm.setChatId(Long.toString(chatId));
         sm.setText(text);
+        if (keyboard != null)
+            sm.setReplyMarkup(keyboard);
+        if (htmlParseMode)
+            sm.setParseMode(ParseMode.HTML);
         try {
             execute(sm);
         } catch (TelegramApiException e) {

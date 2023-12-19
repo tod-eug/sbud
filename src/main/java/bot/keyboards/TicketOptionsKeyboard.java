@@ -9,19 +9,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.ArrayList;
 import java.util.List;
 
-public class PortfolioKeyboard {
+public class TicketOptionsKeyboard {
 
     public static final int buttonsInLineDefault = 3;
 
-    public static InlineKeyboardMarkup getPortfolioKeyboard(List<Ticker> portfolio, String callbackType) {
+    public static InlineKeyboardMarkup getTicketOptionsKeyboard(List<Ticker> ticketOptions, String callbackType) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        if (portfolio != null) {
-            if (!portfolio.isEmpty()) {
+        if (ticketOptions != null) {
+            if (!ticketOptions.isEmpty()) {
                 int buttonsInLine = buttonsInLineDefault;
 
-                List<List<Ticker>> dividedList = ListUtils.partition(portfolio, buttonsInLine);
+                List<List<Ticker>> dividedList = ListUtils.partition(ticketOptions, buttonsInLine);
 
                 for (List<Ticker> l : dividedList) {
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
