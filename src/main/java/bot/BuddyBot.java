@@ -30,6 +30,7 @@ public class BuddyBot extends TelegramLongPollingCommandBot {
     public BuddyBot() {
         super();
         register(new StartCommand());
+        register(new CancelCommand());
         register(new AddStockCommand());
         register(new DividendCalendarCommand());
         register(new ShowPortfolioCommand());

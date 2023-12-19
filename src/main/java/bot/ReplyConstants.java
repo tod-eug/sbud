@@ -2,6 +2,7 @@ package bot;
 
 public interface ReplyConstants {
     String START_REPLY_WELCOME = "Welcome! ";
+    String CANCEL_REPLY = "Bot state refreshed.";
     String ADD_STOCK_REPLY = "Please send me ticker to add to your portfolio:";
     String DELETE_TICKER_REPLAY = "Please choose ticker to delete:\n";
 
