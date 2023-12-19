@@ -23,3 +23,14 @@ CREATE TABLE public.portfolio (
 	create_date timestamp NOT NULL,
 	CONSTRAINT portfolio_pkey PRIMARY KEY (id)
 );
+
+
+CREATE TABLE public.analytics (
+	id uuid NOT NULL,
+	user_id uuid NOT NULL,
+	command varchar(30) NULL,
+	text varchar(3000) NULL,
+	callback varchar(100) NULL,
+	create_date timestamp NOT NULL,
+	CONSTRAINT analytics_pkey PRIMARY KEY (id)
+);
