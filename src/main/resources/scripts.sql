@@ -15,6 +15,11 @@ CREATE TABLE public.portfolio (
 	id uuid NOT NULL,
 	user_id uuid NOT NULL,
 	ticker varchar(30) NOT NULL,
+	pretty_ticker varchar(30) NULL,
+	name varchar(100) NULL,
+	currency varchar(10) NULL,
+	exchange varchar(10) NULL,
+	exchange_full_name varchar(100) NULL,
 	create_date timestamp NOT NULL,
 	CONSTRAINT portfolio_pkey PRIMARY KEY (id)
 );
